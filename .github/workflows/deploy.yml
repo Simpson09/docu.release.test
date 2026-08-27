@@ -33,11 +33,10 @@ jobs:
       - name: Build Docusaurus
         run: npm run build
 
-      # --- [추가된 부분: Puppeteer 실행 및 PDF 복사] ---
       - name: Start Docusaurus server in background
         run: |
-          npx serve -p 3000 build &
-          sleep 5
+          npm run serve -- --port 3000 --host 127.0.0.1 &
+          npx wait-on https://simpson09.github.io/docu.release.test/docu.release.test/
 
       - name: Generate PDF via Puppeteer
         run: node scripts/generate-pdf.js
@@ -46,7 +45,6 @@ jobs:
         run: |
           mkdir -p build/files
           cp static/files/Manual.pdf build/files/
-      # -----------------------------------------------
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

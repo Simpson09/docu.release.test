@@ -8,21 +8,26 @@ const path = require('path');
   
   const browser = await puppeteer.launch({
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'] // CI 환경 필수 옵션
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
 
   const page = await browser.newPage();
 
-  // Docusaurus 로컬 서빙 주소 (기본 포트: 3000 또는 8080)
-  const targetUrl = 'http://localhost:3000/docu.release.test/docs/intro';
+  // 127.0.0.1 및 정확한 문서 경로 지정
+  const targetUrl = 'https://simpson09.github.io/docu.release.test/docu.release.test/docs/intro';
   
   console.log(`페이지 접근 중: ${targetUrl}`);
-  await page.goto(targetUrl, {
-    waitUntil: 'networkidle0', // 모든 리소스 로딩 완료 대기
+  const response = await page.goto(targetUrl, {
+    waitUntil: 'networkidle0',
     timeout: 60000
   });
 
-  // 인쇄용 스타일 주입: 사이드바, 내비게이션 바, 푸터 숨김 처리
+  // HTTP 상태 코드가 404인지 확인하는 방어 코드
+  if (response && response.status() === 404) {
+    throw new Error(`404 Not Found 에러 발생: ${targetUrl}`);
+  }
+
+  // 인쇄용 스타일 주입
   await page.addStyleTag({
     content: `
       nav.navbar, 
@@ -39,14 +44,12 @@ const path = require('path');
     `
   });
 
-  // PDF 저장 경로 설정
   const outputDir = path.join(__dirname, '../static/files');
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
   const outputPath = path.join(outputDir, 'Manual.pdf');
 
-  // PDF 렌더링
   await page.pdf({
     path: outputPath,
     format: 'A4',
