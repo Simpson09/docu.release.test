@@ -14,7 +14,7 @@ const path = require('path');
   const page = await browser.newPage();
 
   // 127.0.0.1 및 정확한 문서 경로 지정
-  const targetUrl = 'https://simpson09.github.io/docu.release.test/docu.release.test/docs/intro';
+  const targetUrl = 'https://simpson09.github.io/docu.release.test/docs/intro';
   
   console.log(`페이지 접근 중: ${targetUrl}`);
   const response = await page.goto(targetUrl, {
