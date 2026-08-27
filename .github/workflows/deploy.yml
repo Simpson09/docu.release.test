@@ -33,10 +33,11 @@ jobs:
       - name: Build Docusaurus
         run: npm run build
 
+      # npx wait-on 대신 백그라운드 실행 및 sleep 사용
       - name: Start Docusaurus server in background
         run: |
           npm run serve -- --port 3000 --host 127.0.0.1 &
-          npx wait-on https://simpson09.github.io/docu.release.test/docu.release.test/
+          sleep 10
 
       - name: Generate PDF via Puppeteer
         run: node scripts/generate-pdf.js
