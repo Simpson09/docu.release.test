@@ -1,12 +1,12 @@
-name: Deploy Docusaurus to GitHub Pages
+name: Deploy Docusaurus to GitHub Pages with PDF
 
 on:
   push:
     branches:
-      - main # 기본 브랜치가 master라면 master로 변경
+      - main
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -32,6 +32,21 @@ jobs:
 
       - name: Build Docusaurus
         run: npm run build
+
+      # --- [추가된 부분: Puppeteer 실행 및 PDF 복사] ---
+      - name: Start Docusaurus server in background
+        run: |
+          npx serve -p 3000 build &
+          sleep 5
+
+      - name: Generate PDF via Puppeteer
+        run: node scripts/generate-pdf.js
+
+      - name: Copy PDF to Build output
+        run: |
+          mkdir -p build/files
+          cp static/files/Manual.pdf build/files/
+      # -----------------------------------------------
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
